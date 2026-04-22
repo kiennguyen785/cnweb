@@ -2,7 +2,7 @@
 
 ## 1. Tên bài toán
 
-Xây dựng hệ thống quản lý, hiển thị và gợi ý sản phẩm dựa trên dữ liệu bán hàng.
+Xây dựng website bán điện thoại.
 
 ## 2. Bối cảnh bài toán
 
