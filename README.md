@@ -2,7 +2,7 @@
 
 ## 1. Tên bài toán
 
-Xây dựng website bán điện thoại.
+Xây dựng website bán đồ thể thao.
 
 ## 2. Bối cảnh bài toán
 
@@ -26,7 +26,6 @@ Xây dựng một hệ thống web có khả năng quản lý dữ liệu sản 
 - Hiển thị danh sách sản phẩm trên website.
 - Cho phép người dùng tìm kiếm theo tên hoặc lọc theo loại sản phẩm.
 - Cung cấp thông tin cơ bản của sản phẩm như tên, loại, giá.
-- Hỗ trợ chức năng gợi ý sản phẩm dựa trên dữ liệu có sẵn.
 - Tạo nền tảng để có thể mở rộng thêm các chức năng khác trong tương lai.
 
 ## 4. Phát biểu bài toán
@@ -55,7 +54,7 @@ Dữ liệu đầu vào là tập dữ liệu sản phẩm bán hàng, ví dụ 
 ## 6. Đầu vào của bài toán
 
 Đầu vào của hệ thống là dữ liệu sản phẩm được thu thập từ:
-https://www.kaggle.com/datasets/waqi786/mobile-sales-dataset
+(https://www.kaggle.com/datasets/shouvikdey21/sports-ecommerce-products-dataset)
 
 ## 7. Đầu ra của bài toán
 
