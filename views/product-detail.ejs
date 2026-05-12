@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title><%= product.product_name %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo">Sports Shop</a>
+
+  <form action="/products" method="GET" class="search">
+    <input type="text" name="q" placeholder="Tìm sản phẩm thể thao...">
+    <button>Tìm</button>
+  </form>
+
+  <nav>
+    <a href="/">Trang chủ</a>
+    <a href="/products">Sản phẩm</a>
+    <a href="/recommend">Gợi ý</a>
+    <a href="/cart">Giỏ hàng</a>
+
+    <% if (user) { %>
+      <div class="user-menu">
+        <span><%= user.full_name %></span>
+        <div class="dropdown">
+          <a href="/profile">Thông tin cá nhân</a>
+          <a href="/orders">Lịch sử đặt hàng</a>
+          <a href="/auth/logout">Đăng xuất</a>
+        </div>
+      </div>
+    <% } else { %>
+      <a href="/auth/login">Đăng nhập</a>
+      <a href="/auth/register">Đăng ký</a>
+    <% } %>
+  </nav>
+</header>
+
+
+<main class="page-wrap">
+  <div class="detail">
+    <img src="<%= product.image_url %>" alt="<%= product.product_name %>">
+
+    <div>
+      <h1><%= product.product_name %></h1>
+      <p>Thương hiệu: <%= product.brand %></p>
+      <p>Danh mục: <%= product.category %></p>
+      <p>Đánh giá: <%= product.rating %></p>
+      <h2><%= Number(product.price).toLocaleString('vi-VN') %> đ</h2>
+      <p><%= product.description %></p>
+
+      <form action="/cart/add/<%= product.id %>" method="POST">
+        <button>Thêm vào giỏ hàng</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <h3>Sports Shop</h3>
+      <p>Website bán đồ thể thao trực tuyến.</p>
+    </div>
+    <div>
+      <h4>Liên hệ</h4>
+      <p>Email: support@sportshop.vn</p>
+      <p>SĐT: 0123456789</p>
+    </div>
+    <div>
+      <h4>Danh mục</h4>
+      <p>Giày chạy bộ</p>
+      <p>Bóng đá</p>
+      <p>Cầu lông</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

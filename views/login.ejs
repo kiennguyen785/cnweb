@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Đăng nhập</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+
+<div class="auth-box">
+  <h1>Đăng nhập</h1>
+
+  <% if (error) { %>
+    <p class="error"><%= error %></p>
+  <% } %>
+
+  <form method="POST" action="/auth/login">
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Mật khẩu" required>
+    <button>Đăng nhập</button>
+  </form>
+
+  <p>Chưa có tài khoản? <a href="/auth/register">Đăng ký</a></p>
+</div>
+
+</body>
+</html>

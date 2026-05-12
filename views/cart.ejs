@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Giỏ hàng</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo">Sports Shop</a>
+
+  <form action="/products" method="GET" class="search">
+    <input type="text" name="q" placeholder="Tìm sản phẩm thể thao...">
+    <button>Tìm</button>
+  </form>
+
+  <nav>
+    <a href="/">Trang chủ</a>
+    <a href="/products">Sản phẩm</a>
+    <a href="/recommend">Gợi ý</a>
+    <a href="/cart">Giỏ hàng</a>
+
+    <% if (user) { %>
+      <div class="user-menu">
+        <span><%= user.full_name %></span>
+        <div class="dropdown">
+          <a href="/profile">Thông tin cá nhân</a>
+          <a href="/orders">Lịch sử đặt hàng</a>
+          <a href="/auth/logout">Đăng xuất</a>
+        </div>
+      </div>
+    <% } else { %>
+      <a href="/auth/login">Đăng nhập</a>
+      <a href="/auth/register">Đăng ký</a>
+    <% } %>
+  </nav>
+</header>
+
+
+<main class="page-wrap">
+  <h1>Giỏ hàng</h1>
+
+  <% let grandTotal = 0; %>
+
+  <table>
+    <tr>
+      <th>Ảnh</th>
+      <th>Sản phẩm</th>
+      <th>Đơn giá</th>
+      <th>Số lượng</th>
+      <th>Tổng tiền</th>
+      <th>Xóa</th>
+    </tr>
+
+    <% items.forEach(item => { 
+      grandTotal += Number(item.price) * Number(item.quantity);
+    %>
+      <tr>
+        <td><img class="thumb" src="<%= item.image_url %>" alt="<%= item.product_name %>"></td>
+        <td><strong><%= item.product_name %></strong></td>
+        <td class="unit-price"><%= Number(item.price).toLocaleString('vi-VN') %> đ</td>
+        <td>
+          <div class="qty-box">
+            <button class="qty-btn" type="button" onclick="updateQty(<%= item.product_id %>, 'decrease', <%= item.price %>)">-</button>
+            <strong id="qty-<%= item.product_id %>"><%= item.quantity %></strong>
+            <button class="qty-btn" type="button" onclick="updateQty(<%= item.product_id %>, 'increase', <%= item.price %>)">+</button>
+          </div>
+        </td>
+        <td>
+          <strong class="item-total" id="total-<%= item.product_id %>">
+            <%= Number(item.price * item.quantity).toLocaleString('vi-VN') %> đ
+          </strong>
+        </td>
+        <td>
+          <form action="/cart/remove/<%= item.id %>" method="POST">
+            <button type="submit">Xóa</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </table>
+
+  <div class="cart-summary">
+    <h2>Tổng tiền: <span id="grand-total"><%= grandTotal.toLocaleString('vi-VN') %> đ</span></h2>
+    <form action="/orders/checkout" method="POST">
+      <button type="submit">Đặt hàng</button>
+    </form>
+  </div>
+</main>
+
+<script>
+async function updateQty(productId, action, price) {
+  const res = await fetch(`/cart/api/${action}/${productId}`, { method: 'POST' });
+  const data = await res.json();
+
+  if (!data.success) return;
+
+  document.getElementById(`qty-${productId}`).innerText = data.quantity;
+  document.getElementById(`total-${productId}`).innerText =
+    (Number(price) * Number(data.quantity)).toLocaleString('vi-VN') + ' đ';
+
+  let sum = 0;
+  document.querySelectorAll('.item-total').forEach(el => {
+    sum += Number(el.innerText.replaceAll('.', '').replace(' đ', '').trim());
+  });
+
+  document.getElementById('grand-total').innerText = sum.toLocaleString('vi-VN') + ' đ';
+}
+</script>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <h3>Sports Shop</h3>
+      <p>Website bán đồ thể thao trực tuyến.</p>
+    </div>
+    <div>
+      <h4>Liên hệ</h4>
+      <p>Email: support@sportshop.vn</p>
+      <p>SĐT: 0123456789</p>
+    </div>
+    <div>
+      <h4>Danh mục</h4>
+      <p>Giày chạy bộ</p>
+      <p>Bóng đá</p>
+      <p>Cầu lông</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
