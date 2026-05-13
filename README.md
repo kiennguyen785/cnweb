@@ -56,15 +56,13 @@ Hệ thống cần tạo ra các đầu ra sau:
 ## 8. Yêu cầu chức năng
 
 ### 8.1. Chức năng quản lý dữ liệu
-- Nhập dữ liệu sản phẩm từ file dataset vào hệ thống.
+- Nhập dữ liệu sản phẩm vào hệ thống.
 - Lưu trữ dữ liệu vào cơ sở dữ liệu.
 - Cập nhật, thêm, sửa, xóa dữ liệu sản phẩm khi cần.
 
 ### 8.2. Chức năng hiển thị sản phẩm
 - Hiển thị danh sách sản phẩm trên trang web.
 - Hiển thị thông tin cơ bản của sản phẩm: tên, loại, giá.
-- Cho phép xem chi tiết từng sản phẩm.
-
 ### 8.3. Chức năng tìm kiếm và lọc
 - Tìm kiếm sản phẩm theo tên.
 - Lọc sản phẩm theo loại.
