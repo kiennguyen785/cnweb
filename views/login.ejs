@@ -7,20 +7,37 @@
 </head>
 <body>
 
-<div class="auth-box">
-  <h1>Đăng nhập</h1>
+<header class="header">
+  <a href="/" class="logo">Sports Shop</a>
 
-  <% if (error) { %>
-    <p class="error"><%= error %></p>
-  <% } %>
+  <nav>
+    <a href="/">Trang chủ</a>
+    <a href="/products">Sản phẩm</a>
+    <a href="/cart">Giỏ hàng</a>
+    <a href="/auth/register">Đăng ký</a>
+  </nav>
+</header>
 
-  <form method="POST" action="/auth/login">
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Mật khẩu" required>
-    <button>Đăng nhập</button>
-  </form>
+<div class="container">
+  <div class="form-box">
+    <h1>Đăng nhập</h1>
 
-  <p>Chưa có tài khoản? <a href="/auth/register">Đăng ký</a></p>
+    <% if (error) { %>
+      <p class="error"><%= error %></p>
+    <% } %>
+
+    <form method="POST" action="/auth/login">
+      <label>Email</label>
+      <input type="email" name="email" required>
+
+      <label>Mật khẩu</label>
+      <input type="password" name="password" required>
+
+      <button type="submit">Đăng nhập</button>
+    </form>
+
+    <p>Chưa có tài khoản? <a href="/auth/register">Đăng ký</a></p>
+  </div>
 </div>
 
 </body>

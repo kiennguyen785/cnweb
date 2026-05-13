@@ -10,25 +10,15 @@
 <header class="header">
   <a href="/" class="logo">Sports Shop</a>
 
-  <form action="/products" method="GET" class="search">
-    <input type="text" name="q" placeholder="Tìm sản phẩm thể thao...">
-    <button>Tìm</button>
-  </form>
-
   <nav>
+    <a href="/">Trang chủ</a>
     <a href="/products">Sản phẩm</a>
-    <a href="/recommend">Gợi ý</a>
     <a href="/cart">Giỏ hàng</a>
 
     <% if (user) { %>
-      <div class="user-menu">
-        <span><%= user.full_name %></span>
-        <div class="dropdown">
-          <a href="/profile">Thông tin cá nhân</a>
-          <a href="/orders">Đơn hàng</a>
-          <a href="/auth/logout">Đăng xuất</a>
-        </div>
-      </div>
+      <a href="/profile"><%= user.full_name %></a>
+      <a href="/orders">Đơn hàng</a>
+      <a href="/auth/logout">Đăng xuất</a>
     <% } else { %>
       <a href="/auth/login">Đăng nhập</a>
       <a href="/auth/register">Đăng ký</a>

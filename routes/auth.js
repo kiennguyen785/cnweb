@@ -9,27 +9,39 @@ router.get('/login', (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
+
   const { email, password } = req.body;
 
-  const [rows] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
+  const [rows] = await pool.execute(
+    'SELECT * FROM users WHERE email = ?',
+    [email]
+  );
 
   if (rows.length === 0) {
-    return res.render('login', { error: 'Email không tồn tại' });
+    return res.render('login', {
+      error: 'Email không tồn tại'
+    });
   }
 
   const user = rows[0];
-  const ok = await bcrypt.compare(password, user.password);
+
+  const ok = await bcrypt.compare(
+    password,
+    user.password
+  );
 
   if (!ok) {
-    return res.render('login', { error: 'Sai mật khẩu' });
+    return res.render('login', {
+      error: 'Sai mật khẩu'
+    });
   }
 
   req.session.user = {
     id: user.id,
     full_name: user.full_name,
-    email: user.email
+    email: user.email,
+    role: user.role
   };
-
   res.redirect('/');
 });
 
@@ -38,19 +50,26 @@ router.get('/register', (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-  const { full_name, email, password } = req.body;
+  const { full_name, email, password, role } = req.body;
 
-  const [exists] = await pool.execute('SELECT id FROM users WHERE email = ?', [email]);
+  const [exists] = await pool.execute(
+    'SELECT id FROM users WHERE email = ?',
+    [email]
+  );
 
   if (exists.length > 0) {
-    return res.render('register', { error: 'Email đã được đăng ký' });
+    return res.render('register', {
+      error: 'Email đã được đăng ký'
+    });
   }
 
   const hash = await bcrypt.hash(password, 10);
 
+  const accountRole = role === 'seller' ? 'seller' : 'user';
+
   await pool.execute(
-    'INSERT INTO users(full_name, email, password) VALUES (?, ?, ?)',
-    [full_name, email, hash]
+    'INSERT INTO users(full_name, email, password, role) VALUES (?, ?, ?, ?)',
+    [full_name, email, hash, accountRole]
   );
 
   res.redirect('/auth/login');

@@ -7,22 +7,67 @@
 </head>
 <body>
 
-<div class="auth-box">
-  <h1>Đăng ký</h1>
+<header class="header">
+  <a href="/" class="logo">Sports Shop</a>
 
-  <% if (error) { %>
-    <p class="error"><%= error %></p>
-  <% } %>
+  <nav>
+    <a href="/">Trang chủ</a>
+    <a href="/products">Sản phẩm</a>
+    <a href="/cart">Giỏ hàng</a>
+    <a href="/auth/login">Đăng nhập</a>
+  </nav>
+</header>
 
-  <form method="POST" action="/auth/register">
-    <input type="text" name="full_name" placeholder="Họ tên" required>
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Mật khẩu" required>
-    <button>Đăng ký</button>
-  </form>
+<div class="container">
+  <div class="form-box">
+    <h1>Đăng ký</h1>
 
-  <p>Đã có tài khoản? <a href="/auth/login">Đăng nhập</a></p>
+    <% if (error) { %>
+      <p class="error"><%= error %></p>
+    <% } %>
+
+    <form method="POST" action="/auth/register">
+      <label>Họ tên</label>
+      <input type="text" name="full_name" required>
+
+      <label>Email</label>
+      <input type="email" name="email" required>
+
+      <label>Mật khẩu</label>
+      <input type="password" name="password" id="password" required>
+
+      <label>Xác nhận mật khẩu</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" required>
+      <label>Loại tài khoản</label>
+      <select name="role" class="auth-select" required>
+        <option value="user">Người dùng</option>
+        <option value="seller">Người bán</option>
+      </select>
+<p id="passwordError" class="error-text"></p>
+
+      <button type="submit">Đăng ký</button>
+    </form>
+
+    <p>Đã có tài khoản? <a href="/auth/login">Đăng nhập</a></p>
+  </div>
 </div>
+
+<script>
+const form = document.querySelector("form");
+const password = document.getElementById("password");
+const confirmPassword = document.getElementById("confirmPassword");
+const error = document.getElementById("passwordError");
+
+form.addEventListener("submit", function(e) {
+
+  if (password.value !== confirmPassword.value) {
+    e.preventDefault();
+
+    error.innerText = "Mật khẩu xác nhận không khớp";
+  }
+
+});
+</script>
 
 </body>
 </html>

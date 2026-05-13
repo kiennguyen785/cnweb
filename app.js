@@ -5,12 +5,21 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
 
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+var session = require('express-session');
+
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var productRouter = require('./routes/products');
 var cartRouter = require('./routes/cart');
 var orderRouter = require('./routes/orders');
 var profileRouter = require('./routes/profile');
+var adminRouter = require('./routes/admin');
+var sellerRouter = require('./routes/seller');
 
 var app = express();
 
@@ -41,6 +50,8 @@ app.use('/products', productRouter);
 app.use('/cart', cartRouter);
 app.use('/orders', orderRouter);
 app.use('/profile', profileRouter);
+app.use('/admin', adminRouter);
+app.use('/seller', sellerRouter);
 
 app.use(function(req, res, next) {
   next(createError(404));
