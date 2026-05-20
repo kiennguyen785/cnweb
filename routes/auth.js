@@ -7,7 +7,6 @@ const router = express.Router();
 router.get('/login', (req, res) => {
   res.render('login', { error: null });
 });
-
 router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -22,6 +21,11 @@ router.post('/login', async (req, res, next) => {
     }
 
     const user = rows[0];
+
+    // Kiểm tra tài khoản có bị khóa không
+    if (user.is_active === 0) {
+      return res.render('login', { error: 'Tài khoản đã bị khóa' });
+    }
 
     const ok = await bcrypt.compare(password, user.password);
 

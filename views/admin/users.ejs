@@ -1,95 +1,55 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>Quản lý tài khoản</title>
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
-
 <body>
-  <header class="header">
-    <a href="/" class="logo">Sports Shop</a>
 
-    <form action="/products" method="GET" class="search">
-      <input type="text" name="q" placeholder="Tìm sản phẩm...">
-      <button type="submit">Tìm</button>
-    </form>
-
+<header class="header">
+  <a href="/" class="logo">Sports Shop</a>
     <nav>
       <a href="/">Trang chủ</a>
       <a href="/products">Sản phẩm</a>
       <a href="/cart">Giỏ hàng</a>
-
-      <% if (user) { %>
-        <div class="user-menu">
-          <span><%= user.full_name %></span>
-
-          <div class="dropdown">
-            <a href="/profile">Thông tin cá nhân</a>
-            <a href="/orders">Lịch sử đặt hàng</a>
-
-            <% if (user.role === 'admin') { %>
-              <a href="/admin/users">Quản lý tài khoản</a>
-              <a href="/admin/products">Quản lý sản phẩm</a>
-            <% } %>
-
-            <% if (user.role === 'seller') { %>
-              <a href="/seller/products">Quản lý sản phẩm</a>
-            <% } %>
-
-            <a href="/auth/logout">Đăng xuất</a>
-          </div>
-        </div>
-      <% } else { %>
-        <a href="/auth/login">Đăng nhập</a>
-        <a href="/auth/register">Đăng ký</a>
-      <% } %>
+      <a href="/admin/users">Quản lý tài khoản</a>
+      <a href="/admin/products">Quản lý sản phẩm</a>
+      <a href="/auth/logout">Đăng xuất</a>
     </nav>
-  </header>
+</header>
 
-  <main class="page-wrap">
-    <h1>Quản lý tài khoản</h1>
-  </main>
+<div class="page-wrap">
+  <h1>Quản lý tài khoản</h1>
 
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Họ tên</th>
-        <th>Email</th>
-        <th>Số điện thoại</th>
-        <th>Địa chỉ</th>
-        <th>Vai trò hiện tại</th>
-        <th>Trạng thái</th>
-        <th>Đổi quyền</th>
-        <th>Thao tác</th>
-      </tr>
-    </thead>
+  <% if (users && users.length > 0) { %>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Họ tên</th>
+          <th>Email</th>
+          <th>SĐT</th>
+          <th>Địa chỉ</th>
+          <th>Vai trò</th>
+          <th>Trạng thái</th>
+          <th>Đổi quyền</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
 
-    <tbody>
-      <% if (users && users.length > 0) { %>
+      <tbody>
         <% users.forEach(u => { %>
           <% 
-            const currentUserId = user ? user.id : null;
-            const isCurrentUser = Number(currentUserId) === Number(u.user_id);
+            const isCurrentUser = user && Number(user.id) === Number(u.id);
           %>
 
           <tr>
-            <td><%= u.user_id %></td>
-
-            <td>
-              <strong><%= u.full_name %></strong>
-            </td>
-
+            <td><%= u.id %></td>
+            <td><%= u.full_name %></td>
             <td><%= u.email %></td>
-
-            <td>
-              <%= u.phone || 'Chưa có' %>
-            </td>
-
-            <td>
-              <%= u.address || 'Chưa có' %>
-            </td>
+            <td><%= u.phone || 'Chưa có' %></td>
+            <td><%= u.address || 'Chưa có' %></td>
 
             <td>
               <% if (u.role === 'admin') { %>
@@ -103,33 +63,21 @@
 
             <td>
               <% if (u.is_active) { %>
-                Đang hoạt động
+                <span style="color: green; font-weight: 600;">Đang hoạt động</span>
               <% } else { %>
-                Đã khóa
+                <span style="color: red; font-weight: 600;">Đã khóa</span>
               <% } %>
             </td>
 
             <td>
               <% if (isCurrentUser) { %>
-                Không tự đổi quyền
+                <span>Không tự đổi quyền</span>
               <% } else { %>
-                <form
-                  action="/admin/users/<%= u.user_id %>/role"
-                  method="POST"
-                  style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"
-                >
+                <form action="/admin/users/<%= u.id %>/role" method="POST" style="display: flex; gap: 8px;">
                   <select name="role">
-                    <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>
-                      Người dùng
-                    </option>
-
-                    <option value="seller" <%= u.role === 'seller' ? 'selected' : '' %>>
-                      Người bán
-                    </option>
-
-                    <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>
-                      Admin
-                    </option>
+                    <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>Người dùng</option>
+                    <option value="seller" <%= u.role === 'seller' ? 'selected' : '' %>>Người bán</option>
+                    <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Admin</option>
                   </select>
 
                   <button type="submit">Lưu</button>
@@ -139,51 +87,30 @@
 
             <td>
               <% if (isCurrentUser) { %>
-                Không thể xóa chính mình
+                <span>Không thể khóa chính mình</span>
               <% } else if (u.is_active) { %>
-                <form
-                  action="/admin/users/<%= u.user_id %>/delete"
-                  method="POST"
-                  onsubmit="return confirm('Bạn có chắc muốn khóa tài khoản này không?');"
-                >
-                  <button type="submit">Xóa / Khóa</button>
+                <form action="/admin/users/<%= u.id %>/delete" method="POST">
+                  <button 
+                    type="submit"
+                    onclick="return confirm('Bạn có chắc muốn khóa tài khoản này không?')"
+                  >
+                    Khóa
+                  </button>
                 </form>
               <% } else { %>
-                <form action="/admin/users/<%= u.user_id %>/restore" method="POST">
-                  <button type="submit">Khôi phục</button>
+                <form action="/admin/users/<%= u.id %>/restore" method="POST">
+                  <button type="submit">Mở khóa</button>
                 </form>
               <% } %>
             </td>
           </tr>
         <% }) %>
-      <% } else { %>
-        <tr>
-          <td colspan="9" style="text-align: center;">Chưa có tài khoản nào</td>
-        </tr>
-      <% } %>
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p class="error">Chưa có tài khoản nào</p>
+  <% } %>
+</div>
 
-  <footer class="footer">
-    <div class="footer-grid">
-      <div>
-        <h3>Sports Shop</h3>
-        <p>Website bán đồ thể thao trực tuyến.</p>
-      </div>
-
-      <div>
-        <h4>Liên hệ</h4>
-        <p>Email: support@sportshop.vn</p>
-        <p>SĐT: 0123456789</p>
-      </div>
-
-      <div>
-        <h4>Danh mục</h4>
-        <p>Giày chạy bộ</p>
-        <p>Bóng đá</p>
-        <p>Cầu lông</p>
-      </div>
-    </div>
-  </footer>
 </body>
 </html>

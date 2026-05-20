@@ -14,57 +14,44 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-function getRoleId(role) {
-  if (role === 'admin') return 3;
-  if (role === 'seller') return 2;
-  return 1;
-}
-
 /* =========================
    ADMIN - QUẢN LÝ TÀI KHOẢN
 ========================= */
 
-// Trang quản lý tài khoản
+// Danh sách tài khoản
 router.get('/users', requireAdmin, async (req, res, next) => {
   try {
     const [users] = await pool.execute(`
-      SELECT
-        user_id,
-        full_name,
-        email,
-        phone,
-        address,
-        role,
-        role_id,
-        is_active,
-        created_at
+      SELECT id, full_name, email, phone, address, role, is_active, created_at
       FROM users
-      ORDER BY user_id DESC
+      ORDER BY id DESC
     `);
 
-    res.render('admin/users', { users });
+    res.render('admin/users', {
+      users,
+      user: req.session.user
+    });
   } catch (err) {
     next(err);
   }
 });
 
-// Đổi quyền tài khoản: user / seller / admin
+// Đổi quyền user / seller / admin
 router.post('/users/:id/role', requireAdmin, async (req, res, next) => {
   try {
     const userId = req.params.id;
     const { role } = req.body;
 
+    if (Number(userId) === Number(req.session.user.id)) {
+      return res.redirect('/admin/users');
+    }
+
     const allowedRoles = ['user', 'seller', 'admin'];
     const newRole = allowedRoles.includes(role) ? role : 'user';
-    const newRoleId = getRoleId(newRole);
 
     await pool.execute(
-      `
-      UPDATE users
-      SET role = ?, role_id = ?, is_active = TRUE
-      WHERE user_id = ?
-      `,
-      [newRole, newRoleId, userId]
+      `UPDATE users SET role = ?, is_active = 1 WHERE id = ?`,
+      [newRole, userId]
     );
 
     res.redirect('/admin/users');
@@ -73,24 +60,17 @@ router.post('/users/:id/role', requireAdmin, async (req, res, next) => {
   }
 });
 
-// Xóa tài khoản
-// Ở đây mình dùng xóa mềm: is_active = FALSE
-// Vì nếu xóa cứng có thể làm mất dữ liệu đơn hàng, giỏ hàng.
+// Khóa tài khoản
 router.post('/users/:id/delete', requireAdmin, async (req, res, next) => {
   try {
     const userId = req.params.id;
 
-    // Không cho admin tự xóa chính mình
     if (Number(userId) === Number(req.session.user.id)) {
       return res.redirect('/admin/users');
     }
 
     await pool.execute(
-      `
-      UPDATE users
-      SET is_active = FALSE
-      WHERE user_id = ?
-      `,
+      `UPDATE users SET is_active = 0 WHERE id = ?`,
       [userId]
     );
 
@@ -100,17 +80,13 @@ router.post('/users/:id/delete', requireAdmin, async (req, res, next) => {
   }
 });
 
-// Khôi phục tài khoản
+// Mở khóa tài khoản
 router.post('/users/:id/restore', requireAdmin, async (req, res, next) => {
   try {
     const userId = req.params.id;
 
     await pool.execute(
-      `
-      UPDATE users
-      SET is_active = TRUE
-      WHERE user_id = ?
-      `,
+      `UPDATE users SET is_active = 1 WHERE id = ?`,
       [userId]
     );
 
@@ -120,52 +96,77 @@ router.post('/users/:id/restore', requireAdmin, async (req, res, next) => {
   }
 });
 
+
 /* =========================
    ADMIN - QUẢN LÝ SẢN PHẨM
 ========================= */
 
-// Trang quản lý sản phẩm
+// Danh sách sản phẩm
 router.get('/products', requireAdmin, async (req, res, next) => {
   try {
     const [products] = await pool.execute(`
-      SELECT
-        p.product_id,
+      SELECT 
+        p.id,
         p.product_name,
-        p.brand_id,
-        p.category_id,
+        p.brand,
+        p.category,
+        p.price,
+        p.rating,
         p.description,
-        p.specifications,
         p.image_url,
-        p.is_promotion,
-        p.is_active,
         p.seller_id,
         p.quantity,
         p.created_at,
         u.full_name AS seller_name
       FROM products p
-      LEFT JOIN users u ON p.seller_id = u.user_id
-      ORDER BY p.product_id DESC
+      LEFT JOIN users u ON p.seller_id = u.id
+      ORDER BY p.id DESC
     `);
 
-    res.render('admin/products', { products });
+    res.render('admin/products', {
+      products,
+      user: req.session.user
+    });
   } catch (err) {
     next(err);
   }
 });
+async function getProductFormOptions() {
+  const [sellers] = await pool.execute(`
+    SELECT id, full_name, email
+    FROM users
+    WHERE role = 'seller' AND is_active = 1
+    ORDER BY full_name ASC
+  `);
 
+  const [brands] = await pool.execute(`
+    SELECT DISTINCT brand
+    FROM products
+    WHERE brand IS NOT NULL AND brand <> ''
+    ORDER BY brand ASC
+  `);
+
+  const [categories] = await pool.execute(`
+    SELECT DISTINCT category
+    FROM products
+    WHERE category IS NOT NULL AND category <> ''
+    ORDER BY category ASC
+  `);
+
+  return { sellers, brands, categories };
+}
 // Form thêm sản phẩm
 router.get('/products/add', requireAdmin, async (req, res, next) => {
   try {
-    const [sellers] = await pool.execute(`
-      SELECT user_id, full_name, email
-      FROM users
-      WHERE role = 'seller' AND is_active = TRUE
-      ORDER BY full_name ASC
-    `);
+    const { sellers, brands, categories } = await getProductFormOptions();
 
-    res.render('admin/add-product', {
+    res.render('admin/product-form', {
+      product: null,
       sellers,
-      error: null
+      brands,
+      categories,
+      action: '/admin/products/add',
+      title: 'Thêm sản phẩm'
     });
   } catch (err) {
     next(err);
@@ -177,60 +178,31 @@ router.post('/products/add', requireAdmin, async (req, res, next) => {
   try {
     const {
       product_name,
-      brand_id,
-      category_id,
+      brand,
+      category,
+      price,
+      rating,
       description,
-      specifications,
       image_url,
-      is_promotion,
-      is_active,
       seller_id,
       quantity
     } = req.body;
 
-    if (!product_name || !brand_id || !category_id) {
-      const [sellers] = await pool.execute(`
-        SELECT user_id, full_name, email
-        FROM users
-        WHERE role = 'seller' AND is_active = TRUE
-        ORDER BY full_name ASC
-      `);
-
-      return res.render('admin/add-product', {
-        sellers,
-        error: 'Vui lòng nhập tên sản phẩm, brand_id và category_id'
-      });
-    }
-
-    await pool.execute(
-      `
-      INSERT INTO products (
-        product_name,
-        brand_id,
-        category_id,
-        description,
-        specifications,
-        image_url,
-        is_promotion,
-        is_active,
-        seller_id,
-        quantity
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `,
-      [
-        product_name,
-        Number(brand_id),
-        Number(category_id),
-        description || null,
-        specifications || null,
-        image_url || null,
-        is_promotion ? 1 : 0,
-        is_active ? 1 : 0,
-        seller_id || null,
-        Number(quantity || 0)
-      ]
-    );
+    await pool.execute(`
+      INSERT INTO products
+      (product_name, brand, category, price, rating, description, image_url, seller_id, quantity)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      product_name,
+      brand,
+      category,
+      price || 0,
+      rating || 0,
+      description,
+      image_url,
+      seller_id || null,
+      quantity || 0
+    ]);
 
     res.redirect('/admin/products');
   } catch (err) {
@@ -244,29 +216,23 @@ router.get('/products/:id/edit', requireAdmin, async (req, res, next) => {
     const productId = req.params.id;
 
     const [rows] = await pool.execute(
-      `
-      SELECT *
-      FROM products
-      WHERE product_id = ?
-      `,
+      `SELECT * FROM products WHERE id = ?`,
       [productId]
     );
 
     if (rows.length === 0) {
-      return res.send('Không tìm thấy sản phẩm');
+      return res.redirect('/admin/products');
     }
 
-    const [sellers] = await pool.execute(`
-      SELECT user_id, full_name, email
-      FROM users
-      WHERE role = 'seller' AND is_active = TRUE
-      ORDER BY full_name ASC
-    `);
+    const { sellers, brands, categories } = await getProductFormOptions();
 
-    res.render('admin/edit-product', {
+    res.render('admin/product-form', {
       product: rows[0],
       sellers,
-      error: null
+      brands,
+      categories,
+      action: `/admin/products/${productId}/edit`,
+      title: 'Sửa sản phẩm'
     });
   } catch (err) {
     next(err);
@@ -280,67 +246,40 @@ router.post('/products/:id/edit', requireAdmin, async (req, res, next) => {
 
     const {
       product_name,
-      brand_id,
-      category_id,
+      brand,
+      category,
+      price,
+      rating,
       description,
-      specifications,
       image_url,
-      is_promotion,
-      is_active,
       seller_id,
       quantity
     } = req.body;
 
-    if (!product_name || !brand_id || !category_id) {
-      const [rows] = await pool.execute(
-        'SELECT * FROM products WHERE product_id = ?',
-        [productId]
-      );
-
-      const [sellers] = await pool.execute(`
-        SELECT user_id, full_name, email
-        FROM users
-        WHERE role = 'seller' AND is_active = TRUE
-        ORDER BY full_name ASC
-      `);
-
-      return res.render('admin/edit-product', {
-        product: rows[0],
-        sellers,
-        error: 'Vui lòng nhập tên sản phẩm, brand_id và category_id'
-      });
-    }
-
-    await pool.execute(
-      `
+    await pool.execute(`
       UPDATE products
-      SET
-        product_name = ?,
-        brand_id = ?,
-        category_id = ?,
-        description = ?,
-        specifications = ?,
-        image_url = ?,
-        is_promotion = ?,
-        is_active = ?,
-        seller_id = ?,
-        quantity = ?
-      WHERE product_id = ?
-      `,
-      [
-        product_name,
-        Number(brand_id),
-        Number(category_id),
-        description || null,
-        specifications || null,
-        image_url || null,
-        is_promotion ? 1 : 0,
-        is_active ? 1 : 0,
-        seller_id || null,
-        Number(quantity || 0),
-        productId
-      ]
-    );
+      SET product_name = ?,
+          brand = ?,
+          category = ?,
+          price = ?,
+          rating = ?,
+          description = ?,
+          image_url = ?,
+          seller_id = ?,
+          quantity = ?
+      WHERE id = ?
+    `, [
+      product_name,
+      brand,
+      category,
+      price || 0,
+      rating || 0,
+      description,
+      image_url,
+      seller_id || null,
+      quantity || 0,
+      productId
+    ]);
 
     res.redirect('/admin/products');
   } catch (err) {
@@ -349,37 +288,12 @@ router.post('/products/:id/edit', requireAdmin, async (req, res, next) => {
 });
 
 // Xóa sản phẩm
-// Dùng xóa mềm: is_active = FALSE
 router.post('/products/:id/delete', requireAdmin, async (req, res, next) => {
   try {
     const productId = req.params.id;
 
     await pool.execute(
-      `
-      UPDATE products
-      SET is_active = FALSE
-      WHERE product_id = ?
-      `,
-      [productId]
-    );
-
-    res.redirect('/admin/products');
-  } catch (err) {
-    next(err);
-  }
-});
-
-// Khôi phục sản phẩm
-router.post('/products/:id/restore', requireAdmin, async (req, res, next) => {
-  try {
-    const productId = req.params.id;
-
-    await pool.execute(
-      `
-      UPDATE products
-      SET is_active = TRUE
-      WHERE product_id = ?
-      `,
+      `DELETE FROM products WHERE id = ?`,
       [productId]
     );
 

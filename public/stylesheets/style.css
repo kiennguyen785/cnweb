@@ -464,9 +464,17 @@ td {
   color: red;
   text-align: center;
 }
+.form-box p {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 16px;
+  color: #374151;
+  font-weight: 500;
+}
+
 .form-box p a {
   color: #ee4d2d;
-  font-weight: 600;
+  font-weight: 800;
   text-decoration: none;
   transition: 0.2s;
 }
@@ -609,7 +617,41 @@ a button {
   font-weight: 600;
   margin: 12px 0;
 }
+/* Căn giữa dòng chuyển Login / Register */
+.auth-box p,
+.auth-wrap p {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 16px;
+  color: #374151;
+  font-weight: 500;
+}
 
+/* Style chung cho chữ Đăng ký / Đăng nhập */
+.auth-box p a,
+.auth-wrap p a {
+  font-weight: 800;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+/* Màu chữ Đăng ký */
+.auth-box p a[href="/auth/register"],
+.auth-wrap p a[href="/auth/register"] {
+  color: #ee4d2d;
+}
+
+/* Màu chữ Đăng nhập */
+.auth-box p a[href="/auth/login"],
+.auth-wrap p a[href="/auth/login"] {
+  color: #2563eb;
+}
+
+.auth-box p a:hover,
+.auth-wrap p a:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
 .auth-wrap {
   max-width: 420px;
   margin: 40px auto;
