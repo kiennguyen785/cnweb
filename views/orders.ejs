@@ -26,10 +26,19 @@
         <div class="dropdown">
           <a href="/profile">Thông tin cá nhân</a>
           <a href="/orders">Lịch sử đặt hàng</a>
+
+          <% if (user.role === 'admin') { %>
+            <a href="/admin/users">Quản lý tài khoản</a>
+            <a href="/admin/products">Quản lý sản phẩm</a>
+          <% } %>
+
+          <% if (user.role === 'seller') { %>
+            <a href="/seller/products">Quản lý sản phẩm</a>
+          <% } %>
           <a href="/auth/logout">Đăng xuất</a>
-        </div>
-      </div>
-    <% } else { %>
+         </div>      
+       </div>
+       <% } else { %>
       <a href="/auth/login">Đăng nhập</a>
       <a href="/auth/register">Đăng ký</a>
     <% } %>

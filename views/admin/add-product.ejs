@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Thêm sản phẩm</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo">Sports Shop</a>
+
+  <nav>
+    <a href="/">Trang chủ</a>
+    <a href="/admin/products">Quản lý sản phẩm</a>
+    <a href="/admin/users">Quản lý tài khoản</a>
+    <a href="/auth/logout">Đăng xuất</a>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="form-box">
+    <h1>Thêm sản phẩm</h1>
+
+    <form method="POST" action="/admin/products/add">
+      <label>Tên sản phẩm</label>
+      <input type="text" name="product_name" required>
+
+      <label>Danh mục</label>
+        <select name="category" class="auth-select" required>
+        <option value="">
+            -- Chọn danh mục --
+        </option>
+        <option value="Giày thể thao">
+            Giày thể thao
+        </option>
+        <option value="Áo thể thao">
+            Áo thể thao
+        </option>
+        <option value="Bóng đá">
+            Bóng đá
+        </option>
+        <option value="Gym">
+            Gym
+        </option>
+        <option value="Cầu lông">
+            Cầu lông
+        </option>
+        <option value="Phụ kiện">
+            Phụ kiện
+        </option>
+        </select>
+
+      <label>Giá</label>
+      <input type="number" name="price" required>
+      
+      <label>Số lượng</label>
+        <input
+        type="number"
+        name="quantity"
+        min="0"
+        value="100"
+        required
+        >
+      <label>Link ảnh</label>
+      <input type="text" name="image_url">
+
+      <label>ID người bán</label>
+      <input type="number" name="seller_id" placeholder="Có thể bỏ trống nếu là sản phẩm admin">
+
+      <button type="submit">Thêm sản phẩm</button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

@@ -31,22 +31,49 @@ router.post('/checkout', requireLogin, async (req, res) => {
   const orderId = orderResult.insertId;
 
   for (const item of cartItems) {
+
     await pool.execute(
-      'INSERT INTO order_items(order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',
-      [orderId, item.product_id, item.quantity, item.price]
+      `
+      INSERT INTO order_items(
+        order_id,
+        product_id,
+        quantity,
+        price
+      )
+      VALUES (?, ?, ?, ?)
+      `,
+      [
+        orderId,
+        item.product_id,
+        item.quantity,
+        item.price
+      ]
     );
 
     await pool.execute(
-      'INSERT INTO user_events(user_id, product_id, event_type) VALUES (?, ?, ?)',
-      [userId, item.product_id, 'purchase']
+      `
+      UPDATE products
+      SET quantity = quantity - ?
+      WHERE id = ?
+      AND quantity >= ?
+      `,
+      [
+        item.quantity,
+        item.product_id,
+        item.quantity
+      ]
     );
+
   }
 
-  await pool.execute('DELETE FROM cart_items WHERE user_id = ?', [userId]);
+  await pool.execute(
+    'DELETE FROM cart_items WHERE user_id = ?',
+    [userId]
+  );
 
   res.redirect('/orders');
-});
 
+  });
 router.get('/', requireLogin, async (req, res) => {
   const [orders] = await pool.execute(
     'SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC',

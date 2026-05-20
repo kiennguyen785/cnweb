@@ -44,14 +44,6 @@ router.get('/:id', async (req, res) => {
   if (rows.length === 0) {
     return res.send('Không tìm thấy sản phẩm');
   }
-
-  if (req.session.user) {
-    await pool.execute(
-      'INSERT INTO user_events(user_id, product_id, event_type) VALUES (?, ?, ?)',
-      [req.session.user.id, productId, 'view']
-    );
-  }
-
   res.render('product-detail', {
     product: rows[0]
   });
