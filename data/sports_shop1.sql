@@ -86,8 +86,15 @@ WHERE id IN (1,2,3);
 UPDATE users
 
 SET role = 'admin'
-WHERE email = 'admin@gmail.com';
+WHERE email = 'admin1@gmail.com';
 
 SHOW TABLES;
 DESCRIBE users;
 DESCRIBE products;
+
+ALTER TABLE products
+ADD quantity INT DEFAULT 100;
+
+UPDATE products
+SET quantity = 100
+WHERE quantity IS NULL;

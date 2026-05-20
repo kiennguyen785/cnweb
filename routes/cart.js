@@ -55,22 +55,8 @@ router.post('/add/:id', requireLogin, async (req, res) => {
       productId
     ]
   );
-
-  await pool.execute(
-    `
-    INSERT INTO user_events(user_id, product_id, event_type)
-    VALUES (?, ?, ?)
-    `,
-    [
-      req.session.user.id,
-      productId,
-      'cart'
-    ]
-  );
-
   res.redirect('/cart');
 });
-
 router.post('/api/increase/:productId', requireLogin, async (req, res) => {
   await pool.execute(
     `

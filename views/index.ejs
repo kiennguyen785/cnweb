@@ -105,23 +105,23 @@
 
           <% if (user && (user.role === 'admin' || user.role === 'seller')) { %>
 
-          <button disabled class="disabled-btn">
-            Chỉ xem
-          </button>
+        <button disabled class="disabled-btn">
+          Chỉ xem
+        </button>
 
-        <% } else if (p.quantity > 0) { %>
+      <% } else if (p.quantity > 0) { %>
 
-          <form action="/cart/add/<%= p.id %>" method="POST">
-            <button>Thêm vào giỏ</button>
-          </form>
+        <form action="/cart/add/<%= p.id %>" method="POST">
+          <button>Thêm vào giỏ</button>
+        </form>
 
-        <% } else { %>
+      <% } else { %>
 
-          <button disabled class="disabled-btn">
-            Hết hàng
-          </button>
+        <button disabled class="disabled-btn">
+          Hết hàng
+        </button>
 
-        <% } %>
+      <% } %>
         </div>
 
       <% }) %>

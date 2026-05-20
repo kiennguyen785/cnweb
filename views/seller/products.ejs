@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Quản lý sản phẩm</title>
+  <title>Người bán - Quản lý sản phẩm</title>
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 
@@ -25,16 +25,13 @@
           <span><%= user.full_name %></span>
 
           <div class="dropdown">
-            <a href="/profile">Thông tin cá nhân</a>
-            <a href="/orders">Lịch sử đặt hàng</a>
+            <% if (user.role === 'seller') { %>
+              <a href="/seller/products">Quản lý sản phẩm</a>
+            <% } %>
 
             <% if (user.role === 'admin') { %>
               <a href="/admin/users">Quản lý tài khoản</a>
               <a href="/admin/products">Quản lý sản phẩm</a>
-            <% } %>
-
-            <% if (user.role === 'seller') { %>
-              <a href="/seller/products">Quản lý sản phẩm</a>
             <% } %>
 
             <a href="/auth/logout">Đăng xuất</a>
@@ -48,7 +45,7 @@
   </header>
 
   <main class="page-wrap">
-    <h1>Quản lý sản phẩm</h1>
+    <h1>Quản lý sản phẩm của tôi</h1>
 
     <% if (error) { %>
       <p class="error"><%= error %></p>
@@ -76,9 +73,9 @@
       <tr>
         <td colspan="2">
           <% if (editProduct) { %>
-            <form action="/admin/products/<%= editProduct.product_id %>/edit" method="POST">
+            <form action="/seller/products/<%= editProduct.product_id %>/edit" method="POST">
           <% } else { %>
-            <form action="/admin/products/add" method="POST">
+            <form action="/seller/products/add" method="POST">
           <% } %>
 
             <div class="filter" style="padding: 0; flex-wrap: wrap;">
@@ -113,21 +110,6 @@
                 min="0"
                 value="<%= editProduct ? (editProduct.quantity || 0) : 0 %>"
               >
-
-              <select name="seller_id">
-                <option value="">-- Chưa gán người bán --</option>
-
-                <% if (sellers && sellers.length > 0) { %>
-                  <% sellers.forEach(seller => { %>
-                    <option
-                      value="<%= seller.user_id %>"
-                      <%= editProduct && Number(editProduct.seller_id) === Number(seller.user_id) ? 'selected' : '' %>
-                    >
-                      <%= seller.full_name %> - <%= seller.email %>
-                    </option>
-                  <% }) %>
-                <% } %>
-              </select>
 
               <input
                 type="text"
@@ -176,7 +158,8 @@
             <div style="margin-top: 16px; display: flex; gap: 10px;">
               <% if (editProduct) { %>
                 <button type="submit">Lưu thay đổi</button>
-                <a href="/admin/products">
+
+                <a href="/seller/products">
                   <button type="button">Hủy sửa</button>
                 </a>
               <% } else { %>
@@ -190,7 +173,7 @@
   </table>
 
   <main class="page-wrap">
-    <h1>Danh sách sản phẩm</h1>
+    <h1>Danh sách sản phẩm của tôi</h1>
   </main>
 
   <table>
@@ -200,7 +183,6 @@
         <th>Sản phẩm</th>
         <th>Brand ID</th>
         <th>Category ID</th>
-        <th>Người bán</th>
         <th>Số lượng</th>
         <th>Khuyến mãi</th>
         <th>Trạng thái</th>
@@ -235,15 +217,6 @@
             <td><%= p.category_id %></td>
 
             <td>
-              <% if (p.seller_name) { %>
-                <%= p.seller_name %>
-                <div class="unit-price"><%= p.seller_email %></div>
-              <% } else { %>
-                Chưa gán
-              <% } %>
-            </td>
-
-            <td>
               <strong><%= p.quantity || 0 %></strong>
             </td>
 
@@ -265,20 +238,20 @@
 
             <td>
               <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <a href="/admin/products/<%= p.product_id %>/edit">
+                <a href="/seller/products/<%= p.product_id %>/edit">
                   <button type="button">Sửa</button>
                 </a>
 
                 <% if (p.is_active) { %>
                   <form
-                    action="/admin/products/<%= p.product_id %>/delete"
+                    action="/seller/products/<%= p.product_id %>/delete"
                     method="POST"
                     onsubmit="return confirm('Bạn có chắc muốn ẩn sản phẩm này không?');"
                   >
                     <button type="submit">Xóa</button>
                   </form>
                 <% } else { %>
-                  <form action="/admin/products/<%= p.product_id %>/restore" method="POST">
+                  <form action="/seller/products/<%= p.product_id %>/restore" method="POST">
                     <button type="submit">Khôi phục</button>
                   </form>
                 <% } %>
@@ -288,7 +261,9 @@
         <% }) %>
       <% } else { %>
         <tr>
-          <td colspan="9" style="text-align: center;">Chưa có sản phẩm nào</td>
+          <td colspan="8" style="text-align: center;">
+            Bạn chưa có sản phẩm nào
+          </td>
         </tr>
       <% } %>
     </tbody>
