@@ -41,8 +41,7 @@ Dữ liệu đầu vào là tập dữ liệu sản phẩm bán hàng, ví dụ 
 
 ## 6. Đầu vào của bài toán
 
-Đầu vào của hệ thống là dữ liệu sản phẩm được thu thập từ:
-(https://www.kaggle.com/datasets/shouvikdey21/sports-ecommerce-products-dataset)
+Đầu vào của hệ thống là dữ liệu sản phẩm được tạo từ database
 
 ## 7. Đầu ra của bài toán
 
