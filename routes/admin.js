@@ -111,7 +111,6 @@ router.get('/products', requireAdmin, async (req, res, next) => {
         p.brand,
         p.category,
         p.price,
-        p.rating,
         p.description,
         p.image_url,
         p.seller_id,
@@ -181,7 +180,6 @@ router.post('/products/add', requireAdmin, async (req, res, next) => {
       brand,
       category,
       price,
-      rating,
       description,
       image_url,
       seller_id,
@@ -190,14 +188,14 @@ router.post('/products/add', requireAdmin, async (req, res, next) => {
 
     await pool.execute(`
       INSERT INTO products
-      (product_name, brand, category, price, rating, description, image_url, seller_id, quantity)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (product_name, brand, category, price,description, image_url, seller_id, quantity)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       product_name,
       brand,
       category,
       price || 0,
-      rating || 0,
+
       description,
       image_url,
       seller_id || null,
@@ -249,7 +247,6 @@ router.post('/products/:id/edit', requireAdmin, async (req, res, next) => {
       brand,
       category,
       price,
-      rating,
       description,
       image_url,
       seller_id,
@@ -262,7 +259,6 @@ router.post('/products/:id/edit', requireAdmin, async (req, res, next) => {
           brand = ?,
           category = ?,
           price = ?,
-          rating = ?,
           description = ?,
           image_url = ?,
           seller_id = ?,
@@ -273,7 +269,6 @@ router.post('/products/:id/edit', requireAdmin, async (req, res, next) => {
       brand,
       category,
       price || 0,
-      rating || 0,
       description,
       image_url,
       seller_id || null,
